@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strconv"
 	"todo-go-rest/model"
 	"todo-go-rest/model/request"
 	"todo-go-rest/repository"
@@ -15,14 +16,14 @@ type AuthService interface {
 }
 
 type authService struct {
-	// email      string
-	// password   string
-	repository repository.UserRepository
+	repository  repository.UserRepository
+	roleService RoleService
 }
 
-func NewAuthService(repository repository.UserRepository) *authService {
+func NewAuthService(repository repository.UserRepository, roleService RoleService) *authService {
 	return &authService{
-		repository: repository,
+		repository:  repository,
+		roleService: roleService,
 	}
 }
 
@@ -31,12 +32,18 @@ func (service *authService) Register(reg request.RegisterRequest) (model.User, e
 		return model.User{}, errors.New("Password and Confirmation Password are not match")
 	}
 
+	role, err := service.roleService.FindByID(reg.Role)
+	if err != nil {
+		return model.User{}, errors.New("Role with ID " + strconv.Itoa(reg.Role) + " is not found")
+	}
+
 	hashed_password, _ := bcrypt.GenerateFromPassword([]byte(reg.Password), 14)
 	reg_user := model.User{
 		FullName: reg.FullName,
 		Email:    reg.Email,
 		Password: string(hashed_password),
-		Role:     reg.Role,
+		RoleID:   role.ID,
+		Role:     role,
 	}
 
 	user, err := service.repository.Create(reg_user)

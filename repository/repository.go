@@ -11,6 +11,7 @@ import (
 
 type Repository struct {
 	UserRepository UserRepository
+	RoleRepository RoleRepository
 }
 
 func CreateRepository() *Repository {
@@ -21,10 +22,9 @@ func CreateRepository() *Repository {
 		log.Fatal("DB connection failed")
 	}
 
-	db.AutoMigrate(&model.User{})
-	repo := Repository{
+	db.AutoMigrate(&model.Role{}, &model.User{})
+	return &Repository{
 		UserRepository: NewUserRepository(db),
+		RoleRepository: NewRoleRepository(db),
 	}
-
-	return &repo
 }
