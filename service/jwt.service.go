@@ -9,25 +9,24 @@ import (
 )
 
 type JWTService interface {
-	GenerateToken(email string, isUser bool) string
+	GenerateToken(email string, role int, isUser bool) string
 	ValidateToken(token string) (*jwt.Token, error)
 }
 
 type authCustomClaims struct {
 	Name string `json:"name"`
+	Role int    `json:"role"`
 	User bool   `json:"user"`
 	jwt.StandardClaims
 }
 
 type jwtServices struct {
 	secretKey string
-	isSure    string
 }
 
 func NewJWTService() JWTService {
 	return &jwtServices{
 		secretKey: getSecretKey(),
-		isSure:    "Bikash",
 	}
 }
 
@@ -40,13 +39,13 @@ func getSecretKey() string {
 	return secret
 }
 
-func (service *jwtServices) GenerateToken(email string, isUser bool) string {
+func (service *jwtServices) GenerateToken(email string, role int, isUser bool) string {
 	claims := &authCustomClaims{
 		email,
+		role,
 		isUser,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 48).Unix(),
-			Issuer:    service.isSure,
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
@@ -68,16 +67,3 @@ func (service *jwtServices) ValidateToken(encodedToken string) (*jwt.Token, erro
 		return []byte(service.secretKey), nil
 	})
 }
-
-// func (service *jwtServices) RemoveToken() {
-
-// 	//If metadata is passed and the tokens valid, delete them from the redis store
-// 	metadata, _ := tokenManager.ExtractTokenMetadata(c.Request)
-// 	if metadata != nil {
-// 		deleteErr := servers.HttpServer.RD.DeleteTokens(metadata)
-// 		if deleteErr != nil {
-// 			c.JSON(http.StatusBadRequest, deleteErr.Error())
-// 			return
-// 		}
-// 	}
-// }

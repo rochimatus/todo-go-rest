@@ -10,8 +10,8 @@ type UserRepository interface {
 	FindAll() ([]model.User, error)
 	FindByID(ID int) (model.User, error)
 	Create(user model.User) (model.User, error)
-	Delete(ID int) (model.User, error)
-	Update(ID int, user model.User) (model.User, error)
+	Delete(user model.User) (model.User, error)
+	Update(user model.User) (model.User, error)
 	FindByEmail(email string) (model.User, error)
 }
 
@@ -45,18 +45,14 @@ func (r *repository) Create(user model.User) (model.User, error) {
 	return user, err
 }
 
-func (r *repository) Delete(ID int) (model.User, error) {
-	user, err := r.FindByID(ID)
-
-	err = r.db.Delete(&user).Error
+func (r *repository) Delete(user model.User) (model.User, error) {
+	err := r.db.Delete(&user).Error
 
 	return user, err
 }
 
-func (r *repository) Update(ID int, user model.User) (model.User, error) {
-	_, err := r.FindByID(ID)
-
-	err = r.db.Save(&user).Error
+func (r *repository) Update(user model.User) (model.User, error) {
+	err := r.db.Save(&user).Error
 
 	return user, err
 }

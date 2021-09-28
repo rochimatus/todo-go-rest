@@ -45,7 +45,7 @@ func (controller *authController) Login(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"user":  userToCredentialResponse(authenticatedUser),
-		"token": controller.jwtService.GenerateToken(credential.Email, true),
+		"token": controller.jwtService.GenerateToken(authenticatedUser.Email, authenticatedUser.RoleID, true),
 	})
 }
 
@@ -68,20 +68,15 @@ func (controller *authController) Register(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"user":  userToCredentialResponse(savedUser),
-			"token": controller.jwtService.GenerateToken(credential.Email, true),
+			"token": controller.jwtService.GenerateToken(savedUser.Email, savedUser.Role.ID, true),
 		})
 	}
-}
-
-func (controller *authController) Logout(c *gin.Context) {
-
-	c.JSON(http.StatusOK, "Successfully logged out")
 }
 
 func userToCredentialResponse(user model.User) response.CredentialResponse {
 	return response.CredentialResponse{
 		FullName: user.FullName,
 		Email:    user.Email,
-		Role:     user.Role,
+		Role:     user.Role.ID,
 	}
 }
