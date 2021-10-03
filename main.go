@@ -35,20 +35,18 @@ func createRoute(controller *controller.Controller) {
 	// Authorization group
 	// authorized := r.Group("/", AuthRequired())
 	// exactly the same as:
-	authorized := router.Group("/")
+	// authorized := router.Group("/")
 
-	authorized.Use(middleware.AuthorizeJWT())
+	// authorized.Use(middleware.AuthorizeJWT())
+	// {
+	role := router.Group("/roles")
+	role.Use(middleware.Admin())
 	{
-		role := authorized.Group("/roles")
 		role.POST("/", controller.RoleController.Create)
 		role.GET("/", controller.RoleController.GetAll)
 		role.GET("/{id}", controller.RoleController.Get)
 		role.PUT("/{id}", controller.RoleController.Edit)
 		role.DELETE("/{id}", controller.RoleController.Delete)
-
-		// nested group
-		// testing := authorized.Group("testing")
-		// testing.GET("/analytics", analyticsEndpoint)
 	}
 
 	router.Run()
