@@ -17,7 +17,9 @@ func authorizeJWT(roleId int) gin.HandlerFunc {
 		token, err := service.NewJWTService().ValidateToken(tokenString)
 		if token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
-			if claims["role"] != roleId {
+			claimRole, _ := claims["role"].(float64)
+			claimRoleId := int(claimRole)
+			if claimRoleId != roleId {
 				c.AbortWithStatus(http.StatusUnauthorized)
 			}
 		} else {

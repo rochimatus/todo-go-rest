@@ -25,7 +25,7 @@ func NewUserRepository(db *gorm.DB) *repository {
 
 func (r *repository) FindAll() ([]model.User, error) {
 	var users []model.User
-
+	r.db.Preload("Role").Find(&users)
 	err := r.db.Find(&users).Error
 
 	return users, err
@@ -33,13 +33,14 @@ func (r *repository) FindAll() ([]model.User, error) {
 
 func (r *repository) FindByID(ID int) (model.User, error) {
 	var user model.User
-
+	r.db.Preload("Role").Find(&user)
 	err := r.db.First(&user, ID).Error
 
 	return user, err
 }
 
 func (r *repository) Create(user model.User) (model.User, error) {
+	r.db.Preload("Role").Find(&user)
 	err := r.db.Create(&user).Error
 
 	return user, err
@@ -59,7 +60,7 @@ func (r *repository) Update(user model.User) (model.User, error) {
 
 func (r *repository) FindByEmail(email string) (model.User, error) {
 	var user model.User
-
+	r.db.Preload("Role").Find(&user)
 	err := r.db.Where("email = ?", email).First(&user).Error
 
 	return user, err

@@ -1,8 +1,13 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type ToDo struct {
+	gorm.Model
 	ID        int
 	User      User
 	UserID    int    `gorm:"type:not null"`

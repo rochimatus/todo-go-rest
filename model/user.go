@@ -1,8 +1,13 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type User struct {
+	gorm.Model
 	ID        int
 	FullName  string `gorm:"type:varchar(100);not null"`
 	Email     string `gorm:"type:varchar(100);unique;not null"`

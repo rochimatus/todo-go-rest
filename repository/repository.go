@@ -10,11 +10,14 @@ import (
 )
 
 type Repository struct {
-	UserRepository UserRepository
-	RoleRepository RoleRepository
+	UserRepository     UserRepository
+	RoleRepository     RoleRepository
+	StatusRepository   StatusRepository
+	ToDoRepository     ToDoRepository
+	ToDoListRepository ToDoListRepository
 }
 
-func CreateRepository() *Repository {
+func CreateRepository(useSeed bool) *Repository {
 	dsn := "root:@tcp(127.0.0.1:3306)/todo-go-rest?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	fmt.Println("COnnected to db")
@@ -22,9 +25,24 @@ func CreateRepository() *Repository {
 		log.Fatal("DB connection failed")
 	}
 
-	db.AutoMigrate(&model.Role{}, &model.User{})
-	return &Repository{
-		UserRepository: NewUserRepository(db),
-		RoleRepository: NewRoleRepository(db),
+	db.AutoMigrate(&model.Role{},
+		&model.User{},
+		&model.Status{},
+		&model.ToDo{},
+		&model.ToDoList{})
+
+	if useSeed {
+		seeding(db)
 	}
+
+	return &Repository{
+		UserRepository:     NewUserRepository(db),
+		RoleRepository:     NewRoleRepository(db),
+		StatusRepository:   NewStatusRepository(db),
+		ToDoRepository:     NewToDoRepository(db),
+		ToDoListRepository: NewToDoListRepository(db),
+	}
+}
+
+func seeding(db *gorm.DB) {
 }

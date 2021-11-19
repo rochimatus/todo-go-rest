@@ -35,3 +35,19 @@ func ToDosToResponses(toDos []model.ToDo) (responses []response.ToDoResponse) {
 	}
 	return responses
 }
+
+func ToDoListToResponse(toDoList model.ToDoList) response.ToDoListResponse {
+	return response.ToDoListResponse{
+		ID:     toDoList.ID,
+		ToDo:   ToDoToResponse(toDoList.ToDo),
+		Task:   toDoList.Task,
+		Status: toDoList.Status.Name,
+	}
+}
+
+func ToDoListsToResponses(toDoLists []model.ToDoList) (responses []response.ToDoListResponse) {
+	for _, toDoList := range toDoLists {
+		responses = append(responses, ToDoListToResponse(toDoList))
+	}
+	return responses
+}

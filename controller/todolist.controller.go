@@ -3,15 +3,14 @@ package controller
 import (
 	"net/http"
 	"strconv"
-	"todo-go-rest/model"
+	"todo-go-rest/helper"
 	"todo-go-rest/model/request"
-	"todo-go-rest/model/response"
 	"todo-go-rest/service"
 
 	"github.com/gin-gonic/gin"
 )
 
-type RoleController interface {
+type ToDoListController interface {
 	Create(c *gin.Context)
 	GetAll(c *gin.Context)
 	Get(c *gin.Context)
@@ -19,18 +18,18 @@ type RoleController interface {
 	Delete(c *gin.Context)
 }
 
-type roleController struct {
-	roleService service.RoleService
+type toDoListController struct {
+	toDoListService service.ToDoListService
 }
 
-func NewRoleController(roleService service.RoleService) RoleController {
-	return &roleController{
-		roleService: roleService,
+func NewToDoListController(toDoListService service.ToDoListService) ToDoListController {
+	return &toDoListController{
+		toDoListService: toDoListService,
 	}
 }
 
-func (controller *roleController) Create(c *gin.Context) {
-	var req request.RoleRequest
+func (controller *toDoListController) Create(c *gin.Context) {
+	var req request.ToDoListRequest
 
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -39,7 +38,7 @@ func (controller *roleController) Create(c *gin.Context) {
 		})
 	}
 
-	role, err := controller.roleService.Create(req)
+	toDoList, err := controller.toDoListService.Create(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -47,13 +46,13 @@ func (controller *roleController) Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   roleToResponse(role),
-		"status": "Role Created Successfully",
+		"data":   helper.ToDoListToResponse(toDoList),
+		"status": "ToDoList Created Successfully",
 	})
 }
 
-func (controller *roleController) GetAll(c *gin.Context) {
-	roles, err := controller.roleService.FindAll()
+func (controller *toDoListController) GetAll(c *gin.Context) {
+	toDoLists, err := controller.toDoListService.FindAll()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -61,12 +60,12 @@ func (controller *roleController) GetAll(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   rolesToResponses(roles),
+		"data":   helper.ToDoListsToResponses(toDoLists),
 		"status": "Get All Data Successfully",
 	})
 }
 
-func (controller *roleController) Get(c *gin.Context) {
+func (controller *toDoListController) Get(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
 
@@ -76,7 +75,7 @@ func (controller *roleController) Get(c *gin.Context) {
 		})
 	}
 
-	role, err := controller.roleService.FindByID(ID)
+	toDoList, err := controller.toDoListService.FindByID(ID)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -85,12 +84,12 @@ func (controller *roleController) Get(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   roleToResponse(role),
+		"data":   helper.ToDoListToResponse(toDoList),
 		"status": "Get One Successfully",
 	})
 }
 
-func (controller *roleController) Edit(c *gin.Context) {
+func (controller *toDoListController) Edit(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
 
@@ -100,7 +99,7 @@ func (controller *roleController) Edit(c *gin.Context) {
 		})
 	}
 
-	var req request.RoleRequest
+	var req request.ToDoListRequest
 	err = c.ShouldBind(&req)
 
 	if err != nil {
@@ -109,7 +108,7 @@ func (controller *roleController) Edit(c *gin.Context) {
 		})
 	}
 
-	role, err := controller.roleService.Update(ID, req)
+	toDoList, err := controller.toDoListService.Update(ID, req)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -118,12 +117,12 @@ func (controller *roleController) Edit(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   roleToResponse(role),
-		"status": "Edit Role Successfully",
+		"data":   helper.ToDoListToResponse(toDoList),
+		"status": "Edit ToDoList Successfully",
 	})
 }
 
-func (controller *roleController) Delete(c *gin.Context) {
+func (controller *toDoListController) Delete(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
 
@@ -133,7 +132,7 @@ func (controller *roleController) Delete(c *gin.Context) {
 		})
 	}
 
-	role, err := controller.roleService.Delete(ID)
+	toDoList, err := controller.toDoListService.Delete(ID)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -142,22 +141,7 @@ func (controller *roleController) Delete(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   roleToResponse(role),
+		"data":   helper.ToDoListToResponse(toDoList),
 		"status": "Deleted successfully",
 	})
-}
-
-func roleToResponse(role model.Role) response.RoleResponse {
-	return response.RoleResponse{
-		ID:          role.ID,
-		Name:        role.Name,
-		Description: role.Description,
-	}
-}
-
-func rolesToResponses(roles []model.Role) (responses []response.RoleResponse) {
-	for _, role := range roles {
-		responses = append(responses, roleToResponse(role))
-	}
-	return responses
 }

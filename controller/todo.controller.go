@@ -31,7 +31,7 @@ func NewToDoController(toDoService service.ToDoService) ToDoController {
 func (controller *toDoController) Create(c *gin.Context) {
 	var req request.ToDoRequest
 
-	err := c.ShouldBind(req)
+	err := c.ShouldBind(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
