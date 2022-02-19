@@ -2,6 +2,7 @@ package main
 
 import (
 	"todo-go-rest/controller"
+	"todo-go-rest/helper"
 	"todo-go-rest/middleware"
 	"todo-go-rest/repository"
 	"todo-go-rest/service"
@@ -14,12 +15,9 @@ func main() {
 	repo := repository.CreateRepository(true)
 	// repository.Seeding(repo)
 	service := service.CreateService(repo)
-	controller := controller.CreateController(service)
+	helper := helper.NewAuthHelper(service.UserService)
+	controller := controller.CreateController(service, helper)
 	createRoute(controller)
-	// var userRepository repository.UserRepository = repository.NewUserRepository(db)
-	// var loginService service.AuthService = service.NewAuthService(repo.UserRepository)
-	// var jwtService service.JWTService = service.JWTAuthService()
-	// var authController controller.AuthController = controller.NewAuthController(loginService, jwtService)
 }
 
 func createRoute(controller *controller.Controller) {
@@ -40,15 +38,23 @@ func createRoute(controller *controller.Controller) {
 
 	// authorized.Use(middleware.AuthorizeJWT())
 	// {
+	user := router.Group("/users")
+	user.Use(middleware.Admin())
+	{
+		user.GET("/", controller.UserController.GetAll)
+		user.GET("/:id", controller.UserController.Get)
+		user.DELETE("/:id", controller.UserController.Delete)
+	}
+
 	role := router.Group("/roles")
 	role.Use(middleware.Admin())
 	{
 		role.POST("/", controller.RoleController.Create)
 		role.GET("/", controller.RoleController.GetAll)
 		role.GET("/:id", controller.RoleController.Get)
-		role.PUT("/:id", controller.RoleController.Edit)
 		role.DELETE("/:id", controller.RoleController.Delete)
 	}
+
 	status := router.Group("/status")
 	status.Use(middleware.Admin())
 	{
@@ -58,6 +64,7 @@ func createRoute(controller *controller.Controller) {
 		status.PUT("/:id", controller.StatusController.Edit)
 		status.DELETE("/:id", controller.StatusController.Delete)
 	}
+
 	toDo := router.Group("/to-do")
 	toDo.Use(middleware.User())
 	{
@@ -67,6 +74,7 @@ func createRoute(controller *controller.Controller) {
 		toDo.PUT("/:id", controller.ToDoController.Edit)
 		toDo.DELETE("/:id", controller.ToDoController.Delete)
 	}
+
 	toDoList := router.Group("/to-do-list")
 	toDoList.Use(middleware.User())
 	{
