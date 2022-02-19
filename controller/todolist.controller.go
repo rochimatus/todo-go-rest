@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"todo-go-rest/exception"
 	"todo-go-rest/helper"
 	"todo-go-rest/model/request"
 	"todo-go-rest/service"
@@ -32,116 +33,94 @@ func (controller *toDoListController) Create(c *gin.Context) {
 	var req request.ToDoListRequest
 
 	err := c.ShouldBind(&req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	toDoList, err := controller.toDoListService.Create(req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDoListToResponse(toDoList),
-		"status": "ToDoList Created Successfully",
+		"status":  true,
+		"data":    helper.ToDoListToResponse(toDoList),
+		"message": "ToDoList Created Successfully",
 	})
 }
 
 func (controller *toDoListController) GetAll(c *gin.Context) {
 	toDoLists, err := controller.toDoListService.FindAll()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDoListsToResponses(toDoLists),
-		"status": "Get All Data Successfully",
+		"status":  true,
+		"data":    helper.ToDoListsToResponses(toDoLists),
+		"message": "Get All Data Successfully",
 	})
 }
 
 func (controller *toDoListController) Get(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	toDoList, err := controller.toDoListService.FindByID(ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDoListToResponse(toDoList),
-		"status": "Get One Successfully",
+		"status":  true,
+		"data":    helper.ToDoListToResponse(toDoList),
+		"message": "Get One Successfully",
 	})
 }
 
 func (controller *toDoListController) Edit(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	var req request.ToDoListRequest
 	err = c.ShouldBind(&req)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	toDoList, err := controller.toDoListService.Update(ID, req)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDoListToResponse(toDoList),
-		"status": "Edit ToDoList Successfully",
+		"status":  true,
+		"data":    helper.ToDoListToResponse(toDoList),
+		"message": "Edit ToDoList Successfully",
 	})
 }
 
 func (controller *toDoListController) Delete(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	toDoList, err := controller.toDoListService.Delete(ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDoListToResponse(toDoList),
-		"status": "Deleted successfully",
+		"status":  true,
+		"data":    helper.ToDoListToResponse(toDoList),
+		"message": "Deleted successfully",
 	})
 }

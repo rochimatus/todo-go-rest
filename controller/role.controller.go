@@ -3,6 +3,8 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"todo-go-rest/exception"
+	"todo-go-rest/helper"
 	"todo-go-rest/model"
 	"todo-go-rest/model/request"
 	"todo-go-rest/model/response"
@@ -33,117 +35,95 @@ func (controller *roleController) Create(c *gin.Context) {
 	var req request.RoleRequest
 
 	err := c.ShouldBind(&req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	role, err := controller.roleService.Create(req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   roleToResponse(role),
-		"status": "Role Created Successfully",
+		"status":  true,
+		"data":    helper.RoleToRoleResponse(role),
+		"message": "Role Created Successfully",
 	})
 }
 
 func (controller *roleController) GetAll(c *gin.Context) {
 	roles, err := controller.roleService.FindAll()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   rolesToResponses(roles),
-		"status": "Get All Data Successfully",
+		"status":  true,
+		"data":    rolesToResponses(roles),
+		"message": "Get All Data Successfully",
 	})
 }
 
 func (controller *roleController) Get(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	role, err := controller.roleService.FindByID(ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   roleToResponse(role),
-		"status": "Get One Successfully",
+		"status":  true,
+		"data":    helper.RoleToRoleResponse(role),
+		"message": "Get One Successfully",
 	})
 }
 
 func (controller *roleController) Edit(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	var req request.RoleRequest
 	err = c.ShouldBind(&req)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	role, err := controller.roleService.Update(ID, req)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   roleToResponse(role),
-		"status": "Edit Role Successfully",
+		"status":  true,
+		"data":    helper.RoleToRoleResponse(role),
+		"message": "Edit Role Successfully",
 	})
 }
 
 func (controller *roleController) Delete(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	role, err := controller.roleService.Delete(ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.Error(c, err) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   roleToResponse(role),
-		"status": "Deleted successfully",
+		"status":  true,
+		"data":    helper.RoleToRoleResponse(role),
+		"message": "Deleted successfully",
 	})
 }
 
@@ -157,7 +137,7 @@ func roleToResponse(role model.Role) response.RoleResponse {
 
 func rolesToResponses(roles []model.Role) (responses []response.RoleResponse) {
 	for _, role := range roles {
-		responses = append(responses, roleToResponse(role))
+		responses = append(responses, helper.RoleToRoleResponse(role))
 	}
 	return responses
 }
