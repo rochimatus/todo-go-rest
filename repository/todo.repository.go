@@ -4,6 +4,7 @@ import (
 	"todo-go-rest/model"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ToDoRepository interface {
@@ -26,6 +27,8 @@ func (r *toDoRepository) FindAll() ([]model.ToDo, error) {
 	var toDos []model.ToDo
 
 	err := r.db.Find(&toDos).Error
+	r.db.Preload(clause.Associations).Find(&toDos)
+	r.db.Preload("User.Role").Find(&toDos)
 
 	return toDos, err
 }
@@ -34,6 +37,9 @@ func (r *toDoRepository) FindByID(ID int) (model.ToDo, error) {
 	var toDo model.ToDo
 
 	err := r.db.First(&toDo, ID).Error
+	r.db.Preload(clause.Associations).Find(&toDo)
+	r.db.Preload("User.Role").Find(&toDo)
+	// r.db.Preload("ToDoLists").Find(&toDo)
 
 	return toDo, err
 }

@@ -21,6 +21,24 @@ func UserToCredentialResponse(user model.User) response.CredentialResponse {
 	}
 }
 
+func UserToUserResponse(user model.User) response.UserResponse {
+	return response.UserResponse{
+		ID:        user.ID,
+		FullName:  user.FullName,
+		Email:     user.Email,
+		Role:      user.Role.Name,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+}
+
+func UsersToUserResponses(users []model.User) (responses []response.UserResponse) {
+	for _, user := range users {
+		responses = append(responses, UserToUserResponse(user))
+	}
+	return responses
+}
+
 func ToDoToResponse(toDo model.ToDo) response.ToDoResponse {
 	return response.ToDoResponse{
 		ID:    toDo.ID,
@@ -33,6 +51,7 @@ func ToDosToResponses(toDos []model.ToDo) (responses []response.ToDoResponse) {
 	for _, toDo := range toDos {
 		responses = append(responses, ToDoToResponse(toDo))
 	}
+
 	return responses
 }
 

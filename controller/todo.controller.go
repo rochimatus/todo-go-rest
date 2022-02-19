@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"todo-go-rest/exception"
 	"todo-go-rest/helper"
 	"todo-go-rest/model/request"
 	"todo-go-rest/service"
@@ -20,11 +21,15 @@ type ToDoController interface {
 
 type toDoController struct {
 	toDoService service.ToDoService
+	userService service.UserService
+	authHelper  helper.AuthHelper
 }
 
-func NewToDoController(toDoService service.ToDoService) ToDoController {
+func NewToDoController(toDoService service.ToDoService, userService service.UserService, authHelper helper.AuthHelper) ToDoController {
 	return &toDoController{
 		toDoService: toDoService,
+		userService: userService,
+		authHelper:  authHelper,
 	}
 }
 
@@ -32,60 +37,53 @@ func (controller *toDoController) Create(c *gin.Context) {
 	var req request.ToDoRequest
 
 	err := c.ShouldBind(&req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
-	toDo, err := controller.toDoService.Create(req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	currentUser := controller.authHelper.GetCurrentUser(c)
+
+	toDo, err := controller.toDoService.Create(req, currentUser)
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDoToResponse(toDo),
-		"status": "ToDo Created Successfully",
+		"status":  true,
+		"data":    helper.ToDoToResponse(toDo),
+		"message": "ToDo Created Successfully",
 	})
 }
 
 func (controller *toDoController) GetAll(c *gin.Context) {
 	toDos, err := controller.toDoService.FindAll()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDosToResponses(toDos),
-		"status": "Get All Data Successfully",
+		"status":  true,
+		"data":    helper.ToDosToResponses(toDos),
+		"message": "Get All Data Successfully",
 	})
 }
 
 func (controller *toDoController) Get(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
 	toDo, err := controller.toDoService.FindByID(ID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDoToResponse(toDo),
-		"status": "Get One Successfully",
+		"status":  true,
+		"data":    helper.ToDoToResponse(toDo),
+		"message": "Get One Successfully",
 	})
 }
 
@@ -93,32 +91,28 @@ func (controller *toDoController) Edit(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
 	var req request.ToDoRequest
 	err = c.ShouldBind(&req)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
-	toDo, err := controller.toDoService.Update(ID, req)
+	currentUser := controller.authHelper.GetCurrentUser(c)
+	toDo, err := controller.toDoService.Update(ID, req, currentUser)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDoToResponse(toDo),
-		"status": "Edit ToDo Successfully",
+		"status":  true,
+		"data":    helper.ToDoToResponse(toDo),
+		"message": "Edit ToDo Successfully",
 	})
 }
 
@@ -126,22 +120,20 @@ func (controller *toDoController) Delete(c *gin.Context) {
 	str_ID := c.Param("id")
 	ID, err := strconv.Atoi(str_ID)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
-	toDo, err := controller.toDoService.Delete(ID)
+	currentUser := controller.authHelper.GetCurrentUser(c)
+	toDo, err := controller.toDoService.Delete(ID, currentUser)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if exception.ErrorCustom(c, err, http.StatusBadRequest) {
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   helper.ToDoToResponse(toDo),
-		"status": "Deleted successfully",
+		"status":  true,
+		"data":    helper.ToDoToResponse(toDo),
+		"message": "Deleted successfully",
 	})
 }
