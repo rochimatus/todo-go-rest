@@ -8,7 +8,8 @@ import (
 
 type AppError struct {
 	StatusCode int `json:"code"`
-	err        error
+	Err        error
+	Message    string `json:"message"`
 }
 
 func ErrorCustom(c *gin.Context, err error, statusCode int) bool {
@@ -33,6 +34,17 @@ func Error(c *gin.Context, err error) bool {
 	return false
 }
 
+func ErrorWithMessage(c *gin.Context, ae AppError) bool {
+	if ae.Err != nil {
+		c.AbortWithStatusJSON(ae.StatusCode, gin.H{
+			"status":  false,
+			"message": ae.Message,
+		})
+		return true
+	}
+	return false
+}
+
 func (ae *AppError) Error() string {
-	return ae.err.Error()
+	return ae.Message
 }

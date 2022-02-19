@@ -13,6 +13,13 @@ func RoleToRoleResponse(role model.Role) response.RoleResponse {
 	}
 }
 
+func RolesToRoleResponses(roles []model.Role) (responses []response.RoleResponse) {
+	for _, role := range roles {
+		responses = append(responses, RoleToRoleResponse(role))
+	}
+	return responses
+}
+
 func UserToCredentialResponse(user model.User) response.CredentialResponse {
 	return response.CredentialResponse{
 		FullName: user.FullName,
