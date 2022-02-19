@@ -14,6 +14,7 @@ type User struct {
 	Password  string `gorm:"type:varchar(100);not null"`
 	Role      Role
 	RoleID    int
+	ToDos     []ToDo
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

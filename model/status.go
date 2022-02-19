@@ -1,6 +1,10 @@
 package model
 
+import "gorm.io/gorm"
+
 type Status struct {
-	ID   int
-	Name string `gorm:"type:varchar(25);not null"`
+	gorm.Model
+	ID        int
+	Name      string `gorm:"type:varchar(25);not null"`
+	ToDoLists []ToDoList
 }
