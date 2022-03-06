@@ -26,6 +26,8 @@ func (r *toDoListRepository) FindAll() ([]model.ToDoList, error) {
 	var toDoLists []model.ToDoList
 
 	err := r.db.Find(&toDoLists).Error
+	r.db.Preload("ToDo").Find(&toDoLists)
+	r.db.Preload("Status").Find(&toDoLists)
 
 	return toDoLists, err
 }
@@ -34,6 +36,8 @@ func (r *toDoListRepository) FindByID(ID int) (model.ToDoList, error) {
 	var toDoList model.ToDoList
 
 	err := r.db.First(&toDoList, ID).Error
+	r.db.Preload("ToDo").Find(&toDoList)
+	r.db.Preload("Status").Find(&toDoList)
 
 	return toDoList, err
 }

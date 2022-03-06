@@ -14,19 +14,22 @@ type ToDoListService interface {
 	Create(req request.ToDoListRequest) (model.ToDoList, error)
 	Delete(ID int) (model.ToDoList, error)
 	Update(ID int, req request.ToDoListRequest) (model.ToDoList, error)
+	AddFile(req request.AttachmentRequest, todolistId int, fileName string) (model.Attachment, error)
 }
 
 type toDoListService struct {
-	repository    repository.ToDoListRepository
-	toDoService   ToDoService
-	statusService StatusService
+	repository           repository.ToDoListRepository
+	attachmentRepository repository.AttachmentRepository
+	toDoService          ToDoService
+	statusService        StatusService
 }
 
-func NewToDoListService(repository repository.ToDoListRepository, toDoService ToDoService, statusService StatusService) *toDoListService {
+func NewToDoListService(repository repository.ToDoListRepository, attachmentRepository repository.AttachmentRepository, toDoService ToDoService, statusService StatusService) *toDoListService {
 	return &toDoListService{
-		repository:    repository,
-		toDoService:   toDoService,
-		statusService: statusService,
+		repository:           repository,
+		attachmentRepository: attachmentRepository,
+		toDoService:          toDoService,
+		statusService:        statusService,
 	}
 }
 
@@ -98,4 +101,18 @@ func (service *toDoListService) Update(ID int, req request.ToDoListRequest) (mod
 	toDoList.Task = req.Task
 
 	return service.repository.Update(toDoList)
+}
+
+func (service *toDoListService) AddFile(req request.AttachmentRequest, todolistId int, fileName string) (model.Attachment, error) {
+	uri := "http://localhost:8080/image/" + fileName
+	attachment := model.Attachment{
+		ToDoListId: todolistId,
+		Caption:    req.Caption,
+		Url:        uri,
+	}
+	attachment, err := service.attachmentRepository.Create(attachment)
+	if err != nil {
+		return model.Attachment{}, err
+	}
+	return attachment, err
 }

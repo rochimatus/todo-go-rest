@@ -27,7 +27,7 @@ func createRoute(controller *controller.Controller) {
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	router.Use(gin.Recovery())
-
+	router.Static("/image", "./assets")
 	router.POST("/login", controller.AuthController.Login)
 	router.POST("/register", controller.AuthController.Register)
 
@@ -83,6 +83,7 @@ func createRoute(controller *controller.Controller) {
 		toDoList.GET("/:id", controller.ToDoListController.Get)
 		toDoList.PUT("/:id", controller.ToDoListController.Edit)
 		toDoList.DELETE("/:id", controller.ToDoListController.Delete)
+		toDoList.POST("/:id/upload", controller.ToDoListController.Upload)
 	}
 	router.Run()
 }

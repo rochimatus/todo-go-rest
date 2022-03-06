@@ -3,12 +3,14 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"todo-go-rest/exception"
 	"todo-go-rest/helper"
 	"todo-go-rest/model/request"
 	"todo-go-rest/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type ToDoListController interface {
@@ -17,6 +19,7 @@ type ToDoListController interface {
 	Get(c *gin.Context)
 	Edit(c *gin.Context)
 	Delete(c *gin.Context)
+	Upload(x *gin.Context)
 }
 
 type toDoListController struct {
@@ -122,5 +125,41 @@ func (controller *toDoListController) Delete(c *gin.Context) {
 		"status":  true,
 		"data":    helper.ToDoListToResponse(toDoList),
 		"message": "Deleted successfully",
+	})
+}
+
+func (controller *toDoListController) Upload(c *gin.Context) {
+	attachment_id := c.Param("id")
+	id, err := strconv.Atoi(attachment_id)
+	if exception.Error(c, err) {
+		return
+	}
+
+	var attachmentReq request.AttachmentRequest
+	err = c.ShouldBind(&attachmentReq)
+	if exception.Error(c, err) {
+		return
+	}
+
+	err = c.ShouldBindUri(&attachmentReq)
+	if exception.Error(c, err) {
+		return
+	}
+	fileNames := strings.Split(attachmentReq.File.Filename, ".")
+	fileName := uuid.New().String() + "." + fileNames[1]
+	err = c.SaveUploadedFile(attachmentReq.File, "assets/"+fileName)
+	if exception.Error(c, err) {
+		return
+	}
+
+	attachment, err := controller.toDoListService.AddFile(attachmentReq, id, fileName)
+	if exception.Error(c, err) {
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  true,
+		"data":    helper.AttachmentToAttachmentResponse(attachment),
+		"message": "Upload File successfully",
 	})
 }

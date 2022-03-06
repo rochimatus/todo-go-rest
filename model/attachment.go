@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Attatchment struct {
+type Attachment struct {
 	gorm.Model
 	ID         int
 	ToDoList   ToDoList

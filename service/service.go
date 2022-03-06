@@ -20,7 +20,7 @@ func CreateService(repo *repository.Repository) *Service {
 	userService := NewUserService(repo.UserRepository, roleService)
 	statusService := NewStatusService(repo.StatusRepository)
 	toDoService := NewToDoService(repo.ToDoRepository)
-	toDoListService := NewToDoListService(repo.ToDoListRepository, toDoService, statusService)
+	toDoListService := NewToDoListService(repo.ToDoListRepository, repo.AttachmentRepository, toDoService, statusService)
 
 	return &Service{
 		RoleService:     roleService,
